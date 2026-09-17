@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin | ZELVRA®</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preconnect" href="https://sheetdb.io" crossorigin />
+  <link rel="dns-prefetch" href="https://sheetdb.io" />
+  <link rel="preconnect" href="https://api.imgbb.com" crossorigin />
+  <link rel="dns-prefetch" href="https://api.imgbb.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/admin.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<!-- TikTok Pixel Code Start -->
+<script>
+!function (w, d, t) {
+  w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];
+  ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie","holdConsent","revokeConsent","grantConsent"],
+  ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};
+  for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);
+  ttq.instance=function(t){for(var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e},
+  ttq.load=function(e,n){var r="https://analytics.tiktok.com/i18n/pixel/events.js",o=n&&n.partner;
+  ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=r,ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n||{};
+  n=document.createElement("script");n.type="text/javascript",n.async=!0,n.src=r+"?sdkid="+e+"&lib="+t;
+  e=document.getElementsByTagName("script")[0];e.parentNode.insertBefore(n,e)};
+  ttq.load("DABRDM3C77UDHLL3BQPG");
+  ttq.page();
+}(window, document, "ttq");
+</script>
+<!-- TikTok Pixel Code End -->
+
+</head>
+<body class="admin-body">
+
+  <!-- LOGIN -->
+  <div id="login-screen" class="login-screen">
+    <div class="login-card">
+      <div class="login-logo"><span>◆</span> ZELVRA</div>
+      <p class="login-sub">Admin Portal</p>
+      <form id="login-form">
+        <input type="password" id="admin-pass" placeholder="Password" required autocomplete="current-password" />
+        <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+      </form>
+      <p class="login-hint">Password: <strong>zelvra2026</strong> (change in js/config.js)</p>
+    </div>
+  </div>
+
+  <!-- APP -->
+  <div id="admin-app" class="admin-app" hidden>
+    <aside class="admin-sidebar">
+      <div class="sidebar-brand">
+        <a href="index.html"><span>◆</span> ZELVRA</a>
+        <small>Admin</small>
+      </div>
+      <nav class="sidebar-nav">
+        <button type="button" class="nav-item active" data-view="dashboard">Dashboard</button>
+        <button type="button" class="nav-item" data-view="products">Products</button>
+        <button type="button" class="nav-item" data-view="orders">Orders</button>
+        <button type="button" class="nav-item" data-view="add-product">+ Add Product</button>
+      </nav>
+      <div class="sidebar-foot">
+        <a href="index.html" target="_blank">View Store →</a>
+        <button type="button" id="logout-btn">Log out</button>
+      </div>
+    </aside>
+
+    <main class="admin-main">
+      <header class="admin-top">
+        <h1 id="view-title">Dashboard</h1>
+        <div class="admin-top-actions">
+          <button type="button" class="btn btn-outline btn-sm" id="refresh-btn">Refresh Data</button>
+          <span class="last-sync" id="last-sync">—</span>
+        </div>
+      </header>
+
+      <!-- DASHBOARD -->
+      <section id="view-dashboard" class="admin-view active">
+        <div class="stat-grid">
+          <div class="stat-card">
+            <span class="stat-label">Total Revenue</span>
+            <strong class="stat-value" id="stat-revenue">Rs. 0</strong>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Orders</span>
+            <strong class="stat-value" id="stat-orders">0</strong>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Pending</span>
+            <strong class="stat-value" id="stat-pending">0</strong>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Products</span>
+            <strong class="stat-value" id="stat-products">0</strong>
+          </div>
+        </div>
+
+        <div class="charts-grid">
+          <div class="chart-card">
+            <h3>Orders by Status</h3>
+            <canvas id="chart-status" height="220"></canvas>
+          </div>
+          <div class="chart-card">
+            <h3>Products by Category</h3>
+            <canvas id="chart-category" height="220"></canvas>
+          </div>
+          <div class="chart-card wide">
+            <h3>Revenue by Day (recent orders)</h3>
+            <canvas id="chart-revenue" height="180"></canvas>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Recent Orders</h3>
+          <div class="table-wrap">
+            <table class="admin-table" id="recent-orders-table">
+              <thead>
+                <tr>
+                  <th>Order</th>
+                  <th>Customer</th>
+                  <th>Phone</th>
+                  <th>City</th>
+                  <th>Total</th>
+                  <th>Status</th>
+                  <th>Date</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- PRODUCTS -->
+      <section id="view-products" class="admin-view">
+        <div class="panel">
+          <div class="panel-head">
+            <h3>All Products</h3>
+            <button type="button" class="btn btn-primary btn-sm" data-view-goto="add-product">+ Add Product</button>
+          </div>
+          <div class="table-wrap">
+            <table class="admin-table" id="products-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Image</th>
+                  <th>Name</th>
+                  <th>Category</th>
+                  <th>Price</th>
+                  <th>Stock</th>
+                  <th>Badge</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ADD / EDIT PRODUCT -->
+      <section id="view-add-product" class="admin-view">
+        <div class="panel form-panel">
+          <h3 id="product-form-title">Add Product</h3>
+          <form id="product-form" class="admin-form">
+            <input type="hidden" id="pf-edit-id" value="" />
+            <div class="form-grid">
+              <label>
+                <span>Name *</span>
+                <input type="text" id="pf-name" required placeholder="ZELVRA Premium Ribbed Polo — Navy" />
+              </label>
+              <label>
+                <span>Category *</span>
+                <select id="pf-category" required>
+                  <option value="polos">Polos</option>
+                  <option value="tshirts">T-Shirts</option>
+                  <option value="bottoms">Bottom Wear</option>
+                  <option value="2pcs">2pcs</option>
+                  <option value="jerseys">Football Jerseys</option>
+                  <option value="shoes">Shoes</option>
+                  <option value="accessories">Men Accessories</option>
+                </select>
+              </label>
+              <label>
+                <span>Price (number only) *</span>
+                <input type="number" id="pf-price" required min="0" step="1" placeholder="4499" />
+              </label>
+              <label>
+                <span>Stock</span>
+                <input type="number" id="pf-stock" min="0" value="50" />
+              </label>
+              <label class="full">
+                <span>Upload images (PNG / JPEG) — stored via ImgBB</span>
+                <div class="img-upload-row">
+                  <input type="file" id="pf-image-file" accept="image/png,image/jpeg,image/jpg,image/webp" multiple />
+                  <button type="button" class="btn btn-outline btn-sm" id="pf-upload-btn">Upload to ImgBB</button>
+                </div>
+                <p class="form-hint" id="pf-upload-status">Upload at least 3 PNG/JPEG images, then click Upload. URLs will be added below.</p>
+                <div id="pf-image-previews" class="img-previews"></div>
+              </label>
+              <label class="full">
+                <span>Image URL(s) — min 3, comma separated for gallery *</span>
+                <input type="text" id="pf-image" required placeholder="url1, url2, url3 (minimum 3 images)" />
+              </label>
+              <label class="full">
+                <span>Description</span>
+                <textarea id="pf-description" rows="3" placeholder="Fabric, GSM, fit notes..."></textarea>
+              </label>
+              <label>
+                <span>Sizes (comma separated)</span>
+                <input type="text" id="pf-sizes" value="S,M,L,XL" />
+              </label>
+              <label>
+                <span>Badge</span>
+                <input type="text" id="pf-badge" placeholder="NEW / SALE / PREMIUM" />
+              </label>
+              <label>
+                <span>Rating</span>
+                <input type="number" id="pf-rating" min="0" max="5" step="0.1" value="4.5" />
+              </label>
+              <label>
+                <span>Reviews count</span>
+                <input type="number" id="pf-reviews" min="0" value="0" />
+              </label>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary" id="pf-submit">Save Product</button>
+              <button type="button" class="btn btn-outline" id="pf-cancel">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- ORDERS -->
+      <section id="view-orders" class="admin-view">
+        <div class="panel">
+          <div class="panel-head">
+            <h3>All Orders</h3>
+            <select id="order-status-filter">
+              <option value="all">All statuses</option>
+              <option value="Pending">Pending</option>
+              <option value="Confirmed">Confirmed</option>
+              <option value="Shipped">Shipped</option>
+              <option value="Delivered">Delivered</option>
+              <option value="Cancelled">Cancelled</option>
+            </select>
+          </div>
+          <div class="table-wrap">
+            <table class="admin-table" id="orders-table">
+              <thead>
+                <tr>
+                  <th>Order ID</th>
+                  <th>Customer / Phone</th>
+                  <th>Address / City</th>
+                  <th>Items</th>
+                  <th>Total</th>
+                  <th>Payment</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- ORDER VIEW / EDIT MODAL -->
+  <div class="modal" id="order-modal">
+    <div class="modal-backdrop" data-close-order></div>
+    <div class="modal-content admin-modal order-detail-modal">
+      <button type="button" class="modal-close" data-close-order>&times;</button>
+      <h3>Order Details</h3>
+      <p class="order-id-line">Order ID: <code id="oe-display-id">—</code></p>
+
+      <div class="order-detail-grid" id="order-detail-view">
+        <div class="od-row"><span class="od-label">Customer name</span><strong id="oe-name">—</strong></div>
+        <div class="od-row"><span class="od-label">Phone</span><strong id="oe-phone">—</strong></div>
+        <div class="od-row"><span class="od-label">Email</span><strong id="oe-email">—</strong></div>
+        <div class="od-row full"><span class="od-label">Address</span><strong id="oe-address">—</strong></div>
+        <div class="od-row"><span class="od-label">City</span><strong id="oe-city">—</strong></div>
+        <div class="od-row"><span class="od-label">Payment</span><strong id="oe-payment">—</strong></div>
+        <div class="od-row"><span class="od-label">Total</span><strong id="oe-total">—</strong></div>
+        <div class="od-row"><span class="od-label">Date</span><strong id="oe-date">—</strong></div>
+        <div class="od-row full"><span class="od-label">Items</span><strong id="oe-items" class="od-items">—</strong></div>
+      </div>
+
+      <form id="order-edit-form" class="admin-form" style="margin-top:1.25rem">
+        <input type="hidden" id="oe-id" />
+        <div class="form-grid">
+          <label class="full">
+            <span>Status</span>
+            <select id="oe-status">
+              <option value="Pending">Pending</option>
+              <option value="Confirmed">Confirmed</option>
+              <option value="Shipped">Shipped</option>
+              <option value="Delivered">Delivered</option>
+              <option value="Cancelled">Cancelled</option>
+            </select>
+          </label>
+          <label class="full">
+            <span>Notes</span>
+            <textarea id="oe-notes" rows="3" placeholder="Internal notes (courier, COD remarks…)"></textarea>
+          </label>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Save Status &amp; Notes</button>
+          <button type="button" class="btn btn-outline" data-close-order>Close</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="admin-toast"></div>
+
+  <script src="js/config.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>
